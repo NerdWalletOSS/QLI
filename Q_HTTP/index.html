@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style type="text/css">
+            .float_right{
+            position:absolute;
+            top:30%;
+            left:50%;
+            }
+        </style>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <script>
+            function getParameterByName(name, url) {
+                if (!url) url = window.location.href;
+                name = name.replace(/[\[\]]/g, "\\$&");
+                var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+                    results = regex.exec(url);
+                if (!results) return null;
+                if (!results[2]) return '';
+                return decodeURIComponent(results[2].replace(/\+/g, " "));
+            }            
+            function postRequest() {
+            var data = document.getElementById("input").value;
+            addOption();
+            if(data==="") {
+            alert("Invalid input");
+            return;
+            }
+            var xhr = new XMLHttpRequest();
+            xhr.addEventListener("readystatechange", function () {
+            if (this.readyState === 4) {
+            document.getElementById("output").innerHTML = "<h4>" + this.responseText + "</h4>";
+            }
+            });
+	//console.log(window.location.hostname);
+	//console.log(window.location.protocol);
+	//console.log(window.location.port);
+            xhr.open("POST", "http://" + getParameterByName("host") + ":" + getParameterByName("port"));
+            xhr.send(data);
+            }
+            function addOption() {
+            var option = document.createElement("option");
+            option.text = document.getElementById("input").value;
+		console.log("INPUT" + option.text);
+            if(!optionExists(document.getElementById("input").value, document.getElementById("past"))) {
+            document.getElementById("past").size = document.getElementById("past").size + 1;
+            document.getElementById("past").add(option);
+            commands = localStorage.getItem("commands") + option.text + "____";
+            commands = localStorage.setItem("commands", commands);
+            }
+            }
+            function clearHistory() {
+            localStorage.removeItem("commands");
+            document.getElementById('past').innerHTML = "";
+            commands = "";
+            document.getElementById("past").size = 0;
+            initialize();
+            }
+            function choose() {
+            var select = document.getElementById("past");
+            var _value = select.options[select.selectedIndex].value;
+            document.getElementById("input").value = _value;
+            }
+            function optionExists(needle, haystack)
+            {
+            var optionExists = false;
+            var optionsLength = haystack.length;
+            while (optionsLength--)
+            {
+            if ( haystack.options[ optionsLength ].value === needle )
+            {
+            optionExists = true;
+            break;
+            }
+            }
+            return optionExists;
+            }
+            function initialize() {
+            if (localStorage.getItem("commands") !== null) {
+            commands = localStorage.getItem("commands");
+            commands = commands.slice(0, -4);
+            var items = commands.split('____');
+            for(var index = 0; index < items.length; index++) {
+            var option = document.createElement("option");
+            option.text = items[index].replace("null", "");
+            document.getElementById("past").size = document.getElementById("past").size + 1;
+            document.getElementById("past").add(option);
+            }
+            }
+            else {
+			commands = "";
+            }
+            }
+        </script>
+    </head>
+    <body onload="initialize()">
+        <select class="float_right" onclick="choose()" id="past" size="0">
+        </select>
+        q&gt;<input id='input' style="width:300px;margin:20px;" />
+        <button onclick="postRequest()">Submit</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <button type="button" onclick="clearHistory()">Clear History</button></br>
+        <h4>Output</h4>
+        <div id="output" style="width:300px;height:300px;border:1px solid black;margin:20px;"></div>
+    </body>
+</html>

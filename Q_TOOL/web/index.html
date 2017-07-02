@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style type="text/css">
+            .float_right{
+            position:absolute;
+            top:30%;
+            left:50%;
+            }
+        </style>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <script>
+            function postRequest() {
+            var data = document.getElementById("input").value;
+            addOption();
+            if(data==="") {
+            alert("Invalid input");
+            return;
+            }
+            var xhr = new XMLHttpRequest();
+            xhr.addEventListener("readystatechange", function () {
+            if (this.readyState === 4) {
+            document.getElementById("output").innerHTML = "<h4>" + this.responseText + "</h4>";
+            }
+            });
+	//console.log(window.location.hostname);
+	//console.log(window.location.protocol);
+	//console.log(window.location.port);
+            xhr.open("POST", "http://" + window.location.hostname + ":" + window.location.port + "/Q");
+            xhr.send(data);
+            }
+            function addOption() {
+            var option = document.createElement("option");
+            option.text = document.getElementById("input").value;
+		console.log("INPUT" + option.text);
+            if(!optionExists(document.getElementById("input").value, document.getElementById("past"))) {
+            document.getElementById("past").size = document.getElementById("past").size + 1;
+            document.getElementById("past").add(option);
+            commands = localStorage.getItem("commands") + option.text + "____";
+            commands = localStorage.setItem("commands", commands);
+            }
+            }
+            function clearHistory() {
+            localStorage.removeItem("commands");
+            document.getElementById('past').innerHTML = "";
+            commands = "";
+            document.getElementById("past").size = 0;
+            initialize();
+            }
+            function choose() {
+            var select = document.getElementById("past");
+            var _value = select.options[select.selectedIndex].value;
+            document.getElementById("input").value = _value;
+            }
+            function optionExists(needle, haystack)
+            {
+            var optionExists = false;
+            var optionsLength = haystack.length;
+            while (optionsLength--)
+            {
+            if ( haystack.options[ optionsLength ].value === needle )
+            {
+            optionExists = true;
+            break;
+            }
+            }
+            return optionExists;
+            }
+            function initialize() {
+            if (localStorage.getItem("commands") !== null) {
+            commands = localStorage.getItem("commands");
+            commands = commands.slice(0, -4);
+            var items = commands.split('____');
+            for(var index = 0; index < items.length; index++) {
+            var option = document.createElement("option");
+            option.text = items[index].replace("null", "");
+            document.getElementById("past").size = document.getElementById("past").size + 1;
+            document.getElementById("past").add(option);
+            }
+            }
+            else {
+			commands = "";
+            /*
+            var option = document.createElement("option");
+            option.text = "one";
+            document.getElementById("past").size = document.getElementById("past").size + 1;
+            document.getElementById("past").add(option);
+            commands = commands + option.text + "____";
+            option = document.createElement("option");
+            option.text = "two";
+            document.getElementById("past").size = document.getElementById("past").size + 1;
+            document.getElementById("past").add(option);
+            commands = commands + option.text + "____";
+            option = document.createElement("option");
+            option.text = "three";
+            document.getElementById("past").size = document.getElementById("past").size + 1;
+            document.getElementById("past").add(option);
+            commands = commands + option.text + "____";
+            */
+            }
+            }
+        </script>
+
+      <link rel="stylesheet" href="xterm/dist/xterm.css" />
+      <script src="xterm/dist/xterm.js"></script>
+
+    </head>
+    <body onload="initialize()">
+        <select class="float_right" onclick="choose()" id="past" size="0">
+        </select>
+        q&gt;<input id='input' style="width:300px;margin:20px;" />
+        <button onclick="postRequest()">Submit</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <button type="button" onclick="clearHistory()">Clear History</button></br>
+        <h4>Output</h4>
+        <div id="output" style="width:300px;height:300px;border:1px solid black;margin:20px;"></div>
+
+<!--      <div id="terminal"></div>   -->
+<!--
+      <script>
+function sendRequestTerm(term, data) {
+	//console.log("data- " + data);
+	var xhr = new XMLHttpRequest();
+	xhr.addEventListener("readystatechange", function () {
+	  if (this.readyState === 4) {
+	    //console.log(this.responseText);
+	    if(this.responseText) {
+      	    	term.writeln("");
+	    	term.write(this.responseText);
+	    }
+	    crlf();
+	  }
+	});
+	xhr.open("POST", "http://localhost:3000/Q");
+	xhr.send(data);
+}
+function crlf() {
+	term.writeln("");
+	term.write("q> ");
+	cmd = "";
+}
+function execCmd(cmd) {
+	if (cmd === 'cls') {
+		term.reset();
+		term.write("q> ");
+	}
+	else {
+		addOptionTerm(cmd);
+		sendRequestTerm(term, cmd);
+	}
+}
+        function addOptionTerm(s) {
+            var option = document.createElement("option");
+            option.text = s;
+            if(!optionExists(s, document.getElementById("past"))) {
+            document.getElementById("past").size = document.getElementById("past").size + 1;
+            document.getElementById("past").add(option);
+            commands = localStorage.getItem("commands") + option.text + "____";
+            commands = localStorage.setItem("commands", commands);
+            }
+	}
+	function getOptionTerm(index) {
+            var commands = localStorage.getItem("commands");
+            commands = commands.slice(0, -4);
+            var items = commands.split('____');
+	    var item = items.length+index < 0 ? "" : items[items.length+index];
+		console.log(item);
+            return item.replace("null", "");
+	}
+
+      	var term = new Terminal({
+			  cursorBlink: true,  // Do not blink the terminal's cursor
+			  cols: 60,  // Set the terminal's width to 120 columns
+			  rows: 20  // Set the terminal's height to 80 rows
+			});
+	var cmd="";
+        //term.open(document.getElementById('terminal'));
+	term.resize(60,20);
+	term.reset();
+        term.write('q> ');
+	var histIdx=0;
+	term.on('key', function(s, e) {
+			var code = (e.keyCode ? e.keyCode : e.which);
+			if(code == 13) { //Enter keycode
+				if (cmd)
+					execCmd(cmd);
+				else crlf();
+				histIdx=0;
+			} else {
+				term.write(s);
+				//console.log(s.charCodeAt(0));
+				//console.log(code);
+				if (s.charCodeAt(0) <= 126 && s.charCodeAt(0) >= 32)
+					cmd = cmd + s;
+
+				if (code == 38 || code == 40) {
+					if (code==38) //up
+						--histIdx;
+					if (code==40 && histIdx < 0) //down
+						++histIdx;
+					if (histIdx < 0) {	
+						var sel=getOptionTerm(histIdx);
+						if (!sel) ++histIdx;
+						console.log(sel);
+					} // else set blank
+					console.log(histIdx);
+					if (sel) term.write(sel);
+				}
+			}
+		});
+      </script>
+-->
+    </body>
+</html>
