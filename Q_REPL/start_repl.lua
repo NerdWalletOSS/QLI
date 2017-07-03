@@ -2,7 +2,7 @@ local L = require 'linenoise'
 
 return function (evaluator)
     -- L.clearscreen()
-    local prompt, history = 'q> ', '.q_history'
+    local prompt, history = 'q> ', '_qhist'
     L.historyload(history) -- load existing history
     L.setcompletion(function(c,s)
     if s == 'h' then
