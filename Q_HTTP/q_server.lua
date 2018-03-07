@@ -10,8 +10,8 @@ local port = arg[1] or 0 -- 0 means pick one at random
 local http_server = require "http.server"
 local http_headers = require "http.headers"
 
-local eval = require 'q_eval_line'
-local res_str = require 'q_res_str'
+local eval = require 'QLI/Q_REPL/q_eval_line'
+local res_str = require 'QLI/Q_REPL/q_res_str'
 
 local function reply(myserver, stream) -- luacheck: ignore 212
 	-- Read in headers
