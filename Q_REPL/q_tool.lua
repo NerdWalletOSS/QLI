@@ -6,9 +6,9 @@ Usage: luajit Q/Q_REPL/q_tool.lua [<host> <port>]
 
 print '----- Welcome to Q! ------'
 
-local repl = require 'start_repl'
-local eval = require 'q_eval_line'
-local res_str = require 'q_res_str'
+local repl = require 'QLI/Q_REPL/start_repl'
+local eval = require 'QLI/Q_REPL/q_eval_line'
+local res_str = require 'QLI/Q_REPL/q_res_str'
 
 if (#arg == 0) then
     Q = require 'Q'
