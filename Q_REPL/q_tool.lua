@@ -16,26 +16,21 @@ if (#arg == 0) then
     local q_src_root = os.getenv("Q_SRC_ROOT")
     local q_data_dir = os.getenv("Q_DATA_DIR")
     local q_metadata_dir = os.getenv("Q_METADATA_DIR")
-    assert(q_src_root and q_data_dir, "Required environment variables are not set\nPlease run \"source $Q_SRC_ROOT/setup.sh -f\"")
+    assert(q_src_root and q_data_dir and q_metadata_dir, "Required environment variables are not set\nPlease run \"source $Q_SRC_ROOT/setup.sh -f\"")
     assert(q_src_root and plpath.isdir(q_src_root))
     assert(q_data_dir and plpath.isdir(q_data_dir))
+    assert(q_metadata_dir and plpath.isdir(q_metadata_dir))
     Q = require 'Q'
-    local q_consts = require 'Q/UTILS/lua/q_consts'
-    local meta_file_path = nil
-    if q_metadata_dir then
-      assert(plpath.isdir(q_data_dir))
-      meta_file_path = q_metadata_dir .. "/" .. q_consts.meta_file_name
-      -- Load the saved session if present
-      if plpath.exists(meta_file_path) then
-        Q.restore(meta_file_path)
-      end
+    local qconsts = require 'Q/UTILS/lua/q_consts'
+    local meta_file_path = q_metadata_dir .. "/" .. qconsts.meta_file_name
+    -- Load the saved session if present
+    if plpath.exists(meta_file_path) then
+      Q.restore(meta_file_path)
     end
     repl (function (line)
         if plstring.strip(line) == "os.exit()" then
           -- Save the state to file meta_file_path
-          if meta_file_path then
-            Q.save(meta_file_path)
-          end
+          Q.save(meta_file_path)
           os.exit()
         end
         local success, results = eval(line)
