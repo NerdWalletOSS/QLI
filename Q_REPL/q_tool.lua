@@ -15,23 +15,20 @@ local plstring	= require 'pl.stringx'
 if (#arg == 0) then
     local q_src_root = os.getenv("Q_SRC_ROOT")
     local q_data_dir = os.getenv("Q_DATA_DIR")
-    local q_metadata_dir = os.getenv("Q_METADATA_DIR")
-    assert(q_src_root and q_data_dir and q_metadata_dir, "Required environment variables are not set\nPlease run \"source $Q_SRC_ROOT/setup.sh -f\"")
+    assert(q_src_root and q_data_dir, "Required environment variables are not set\nPlease run \"source $Q_SRC_ROOT/setup.sh -f\"")
     assert(q_src_root and plpath.isdir(q_src_root))
     assert(q_data_dir and plpath.isdir(q_data_dir))
-    assert(q_metadata_dir and plpath.isdir(q_metadata_dir))
     Q = require 'Q'
-    local qconsts = require 'Q/UTILS/lua/q_consts'
-    local meta_file_path = q_metadata_dir .. "/" .. qconsts.meta_file_name
     -- Load the saved session if present
-    if plpath.exists(meta_file_path) then
-      Q.restore(meta_file_path)
+    local meta_file = os.getenv('Q_METADATA_FILE')
+    if meta_file and plpath.exists(meta_file) then
+      Q.restore(meta_file)
     end
     repl (function (line)
         if plstring.strip(line) == "os.exit()" then
-          -- Save the state to file meta_file_path
-          Q.save(meta_file_path)
-          os.exit()
+          -- Call Q.shutdown()
+          -- TODO: capture <ctrl>c and <ctrl>d signals
+          Q.shutdown()
         end
         local success, results = eval(line)
         if success then
