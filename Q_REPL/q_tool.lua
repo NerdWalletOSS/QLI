@@ -34,7 +34,11 @@ if (#arg == 0) then
     if success then
       return res_str(results)
     else
-      return tostring(results[1])
+      if type(results) == "table" then
+        return tostring(results[1])
+      else
+        return results
+      end
     end
   end)
 elseif (#arg == 2) then 
