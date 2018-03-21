@@ -34,7 +34,11 @@ local function reply(myserver, stream) -- luacheck: ignore 212
   if success then
     outs = res_str(results)
   else
-    outs = results[1]
+    if type(results) == "table" then
+      outs = results[1]
+    else
+      outs = results
+    end
   end
   -- Build response headers
   local res_headers = http_headers.new()
