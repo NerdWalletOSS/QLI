@@ -37,7 +37,7 @@ if (#arg == 0) then
       if type(results) == "table" then
         return tostring(results[1])
       else
-        return results
+        return tostring(results)
       end
     end
   end)

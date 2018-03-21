@@ -35,9 +35,9 @@ local function reply(myserver, stream) -- luacheck: ignore 212
     outs = res_str(results)
   else
     if type(results) == "table" then
-      outs = results[1]
+      outs = tostring(results[1])
     else
-      outs = results
+      outs = tostring(results)
     end
   end
   -- Build response headers
