@@ -1,0 +1,22 @@
+QLI: Standalone mode documentation
+
+i) Mandatory to set Q_SRC_ROOT and Q_DATA_DIR environment variables
+     - QLI dies if these environment variables are not set
+ii) On start up of QLI, 
+     - if we wish to restore the saved state then set "Q_METADATA_FILE" environment variable 
+       and the respective metadata file should exists at Q_METADATA_FILE location, QLI restore() restores the saved state 
+     - if we do not wish to restore the saved state then unset "Q_METADATA_FILE" environment variable, QLI continues without restoring.
+iii) Before exit, 
+      - if we wish to save() the state then:
+	  1) "Q_METADATA_FILE" environment variable should be set before starting QLI, so QLI eventually calls Q.save() 
+		to save the state once you exit(using os.exit()) from QLI 
+	  2) if "Q_METADATA_FILE" is not set before starting QLI then make an explicit call to Q.save()
+      - if we do not wish to save the state then unset "Q_METADATA_FILE" environment variable before starting QLI OR don't make any explicit call to Q.save() 
+iv) To exit from QLI: 
+      1)os.exit() command can be used which internally calls Q.shutdown() 
+		-- Q.shutdown() calls Q.save() depending upon Q_METADATA_FILE is set or not 
+      2) <Ctrl>+D and <Ctrl>+C: call to Q.shutdown() is not supported
+	
+
+QLI restore() and save() is optional which is based on Q_METADATA_FILE environment variable is set or not 
+
